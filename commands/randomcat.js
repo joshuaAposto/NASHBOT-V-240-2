@@ -15,7 +15,7 @@ module.exports = {
     }
 
     try {
-      const response = await axios.get(`${global.NashBot.ENDPOINT}cat-image`);
+      const response = await axios.get(`${global.NashBot.JOSHUA}cat-image`);
       const catImageUrl = response.data.url;
       const catImageId = response.data.id;
       const fileExtension = path.extname(catImageUrl);

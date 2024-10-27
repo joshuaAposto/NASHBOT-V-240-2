@@ -17,7 +17,7 @@ module.exports = {
         api.sendMessage('Taking a screenshot, please wait...', event.threadID, event.messageID);
 
         try {
-            const response = await axios.get(`${global.NashBot.ENDPOINT}screenshot?url=${encodeURIComponent(url)}`);
+            const response = await axios.get(`${global.NashBot.JOSHUA}screenshot?url=${encodeURIComponent(url)}`);
             const data = response.data;
 
             if (!data.screenshotURL) {

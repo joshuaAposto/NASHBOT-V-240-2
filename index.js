@@ -2,17 +2,17 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const login = require("./fca-unofficial");
-const loggingin = require("./fca-unofficial/src/fca")
+const loggingin = require("./fca-unofficial/src/fca");
 const fs = require("fs");
 const detectTyping = require("./handle/detectTyping");
 const autoReact = require("./handle/autoReact");
 const unsendReact = require("./handle/unsendReact");
+const chalk = require("chalk");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 const configPath = path.join(__dirname, "config.json");
 const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
-
-const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(express.static("public"));
@@ -25,20 +25,30 @@ global.NashBoT = {
 };
 
 global.NashBot = {
-  ENDPOINT: "https://nash-rest-api-production.up.railway.app/",
   END: "https://deku-rest-apis.ooguy.com/",
-  MONEY: "https://frizzyelectricclients-production.up.railway.app/",
   JOSHUA: "https://rest-api.joshuaapostol.site/"
 };
+
+let isLoggedIn = false;
 
 const loadModules = (type) => {
   const folderPath = path.join(__dirname, type);
   const files = fs.readdirSync(folderPath).filter(file => file.endsWith(".js"));
+  
+  console.log(chalk.bold.redBright(`──LOADING ${type.toUpperCase()}──●`));
+  
   files.forEach(file => {
     const module = require(path.join(folderPath, file));
     if (module && module.name && module[type === "commands" ? "execute" : "onEvent"]) {
       module.nashPrefix = module.nashPrefix !== undefined ? module.nashPrefix : true;
       global.NashBoT[type].set(module.name, module);
+      console.log(
+        chalk.bold.gray("[") + 
+        chalk.bold.cyan("INFO") + 
+        chalk.bold.gray("] ") + 
+        chalk.bold.green(`Loaded ${type.slice(0, -1)}: `) + 
+        chalk.bold.magenta(module.name)
+      );
     }
   });
 };
@@ -47,20 +57,33 @@ const init = async () => {
   await loadModules("commands");
   await loadModules("events");
   await autoLogin();
+  console.log(chalk.bold.blueBright("──BOT START──●"));
+  console.log(chalk.bold.red(`
+ █▄░█ ▄▀█ █▀ █░█
+ █░▀█ █▀█ ▄█ █▀█`));
+  console.log(chalk.bold.yellow("Credits: Joshua Apostol"));
 };
 
 const autoLogin = async () => {
+  if (isLoggedIn) return;
+
   const appStatePath = path.join(__dirname, "appstate.json");
   if (fs.existsSync(appStatePath)) {
     const appState = JSON.parse(fs.readFileSync(appStatePath, "utf8"));
     login({ appState }, config.FCA_OPTIONS, (err, api) => {
       if (err) {
-        console.error("Failed to auto-login:", err);
+        console.error(
+          chalk.bold.gray("[") + 
+          chalk.bold.red("ERROR") + 
+          chalk.bold.gray("] ") + 
+          chalk.bold.redBright("Failed to auto-login:")
+        );
         return;
       }
       const cuid = api.getCurrentUserID();
       global.NashBoT.onlineUsers.set(cuid, { userID: cuid, prefix: config.prefix });
       setupBot(api, config.prefix);
+      isLoggedIn = true;
     });
   }
 };
@@ -74,7 +97,12 @@ const setupBot = (api, prefix) => {
   });
 
   setInterval(() => {
-    api.getFriendsList(() => console.log("Keep-alive signal sent"));
+    api.getFriendsList(() => console.log(
+      chalk.bold.gray("[") + 
+      chalk.bold.cyan("INFO") + 
+      chalk.bold.gray("] ") + 
+      chalk.bold.green("Keep-alive signal sent")
+    ));
   }, 1000 * 60 * 15);
 
   api.listenMqtt((err, event) => {
@@ -90,16 +118,22 @@ const setupBot = (api, prefix) => {
 const handleEvent = async (api, event, prefix) => {
   const { events } = global.NashBoT;
   try {
-    for (const { name, onEvent } of events.values()) {
+    for (const { onEvent } of events.values()) {
       await onEvent({ prefix, api, event });
     }
   } catch (err) {
-    console.error("Event handler error:", err);
+    console.error(
+      chalk.bold.gray("[") + 
+      chalk.bold.red("ERROR") + 
+      chalk.bold.gray("] ") + 
+      chalk.bold.redBright("Event handler error:")
+    );
   }
 };
 
 const handleMessage = async (api, event, prefix) => {
   if (!event.body) return;
+
   let [command, ...args] = event.body.trim().split(" ");
   if (command.startsWith(prefix)) command = command.slice(prefix.length);
 
@@ -121,4 +155,9 @@ const handleMessage = async (api, event, prefix) => {
   }
 };
 
-init().then(() => app.listen(PORT, () => console.log(`Running on http://localhost:${PORT}`)));
+init().then(() => app.listen(PORT, () => console.log(
+  chalk.bold.gray("[") + 
+  chalk.bold.green("SERVER") + 
+  chalk.bold.gray("] ") + 
+  chalk.bold.greenBright(`Running on http://localhost:${PORT}`)
+)));

@@ -1,12 +1,12 @@
 const axios = require("axios");
 
 module.exports = {
-    name: "gemini",
-    description: "burat",
+    name: "claude",
+    description: "Interact with Claude-Sonnet 3.5 model",
     nashPrefix: false,
     version: "1.0.0",
     cooldowns: 5,
-    aliases: ["gemini"],
+    aliases: ["claude"],
     async execute(api, event, args, prefix) {
         const { threadID, messageID } = event;
         const prompt = args.join(" ");
@@ -17,14 +17,14 @@ module.exports = {
 
         global.handle = global.handle || { replies: {} };
 
-        api.sendMessage("[ Gemini-Pro ]\n\nPlease wait...", threadID, (err, info) => {
+        api.sendMessage("[ Claude-Sonnet 3.5 ]\n\nPlease wait...", threadID, (err, info) => {
             if (err) return;
 
-            axios.get(`${global.NashBot.JOSHUA}blackbox/model/gemini-pro?prompt=${encodeURIComponent(prompt)}`)
+            axios.get(`${global.NashBot.JOSHUA}blackbox/model/claude-sonnet-3.5?prompt=${encodeURIComponent(prompt)}`)
                 .then(response => {
                     const reply = response.data.response || "No response available.";
                     api.editMessage(
-                        `[ Gemini-Pro ]\n\n${reply}`,
+                        `[ Claude-Sonnet 3.5 ]\n\n${reply}`,
                         info.messageID
                     );
                     global.handle.replies[info.messageID] = {

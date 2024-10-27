@@ -15,7 +15,7 @@ module.exports = {
     }
 
     try {
-      const response = await axios.get(`${global.NashBot.ENDPOINT}random-dog-image`);
+      const response = await axios.get(`${global.NashBot.JOSHUA}random-dog-image`);
       const imageUrl = response.data.url;
 
       const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });

@@ -24,7 +24,7 @@ module.exports = {
   role: "admin", //it depends on you what you put admin or user 
   execute: (api, event, args, prefix) => {
     // Sends a greeting message
-    api.sendMessage(`Hello there! Thanks for using NashBot!`, event.threadID);
+    api.sendMessage(`Hello there Thanks for using NashBot`, event.threadID);
   },
 };
 ```

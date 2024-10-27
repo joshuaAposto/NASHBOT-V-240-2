@@ -1,5 +1,5 @@
 module.exports = {
-    name: "bot",
+    name: "nash",
     description: "bilat mo mabaho",
     nashPrefix: false,
     version: "1.0.0",
